@@ -1,9 +1,11 @@
 package handlers
 
 import (
-	"github.com/eternaleight/go-backend/models"
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
+
+	"github.com/eternaleight/go-backend/models"
 )
 
 func (h *Handler) GetUser(c *gin.Context) {

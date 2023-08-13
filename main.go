@@ -5,14 +5,15 @@ import (
 	"log"
 	"os"
 
-	"github.com/eternaleight/go-backend/api/handlers"
-	"github.com/eternaleight/go-backend/api/middlewares"
-	"github.com/eternaleight/go-backend/models"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+
+	"github.com/eternaleight/go-backend/api/handlers"
+	"github.com/eternaleight/go-backend/api/middlewares"
+	"github.com/eternaleight/go-backend/models"
 )
 
 var db *gorm.DB

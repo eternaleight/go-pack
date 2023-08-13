@@ -2,9 +2,11 @@ package handlers
 
 import (
 	"fmt"
-	"github.com/eternaleight/go-backend/models"
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
+
+	"github.com/eternaleight/go-backend/models"
 )
 
 func (h *Handler) CreatePost(c *gin.Context) {

@@ -1,13 +1,15 @@
 package handlers
 
 import (
+	"net/http"
+	"os"
+
 	"github.com/dgrijalva/jwt-go"
-	"github.com/eternaleight/go-backend/models"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
-	"net/http"
-	"os"
+
+	"github.com/eternaleight/go-backend/models"
 )
 
 type Handler struct {
