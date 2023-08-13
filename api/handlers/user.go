@@ -6,12 +6,12 @@ import (
 	"net/http"
 )
 
-func GetUser(c *gin.Context) {
+func (h *Handler) GetUser(c *gin.Context) {
 	// isAuthenticatedミドルウェアで設定されたuserIDを取得
 	userID, _ := c.Get("userID")
 
 	var user models.User
-	if err := db.Where("id = ?", userID).First(&user).Error; err != nil {
+	if err := h.DB.Where("id = ?", userID).First(&user).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "ユーザーが見つかりませんでした。"})
 		return
 	}

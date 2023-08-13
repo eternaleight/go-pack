@@ -1,46 +1,24 @@
 package handlers
 
 import (
-	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/eternaleight/go-backend/models"
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 	"golang.org/x/crypto/bcrypt"
-	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"log"
 	"net/http"
 	"os"
 )
 
-var db *gorm.DB
-
-func init() {
-	var err error
-	if err := godotenv.Load(); err != nil {
-		log.Print("No .env file found")
-	}
-
-	// SupabaseからDATABASE_URLを読み取る
-	dsn := fmt.Sprintf("host=%s port=%s user=postgres dbname=%s password=%s sslmode=disable",
-		os.Getenv("HOST"),
-		os.Getenv("PORT"),
-		os.Getenv("DBNAME"),
-		os.Getenv("PASSWORD"),
-	)
-
-	// gormを使用してデータベースに接続する
-	db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
-	if err != nil {
-		panic("Failed to connect to database")
-	}
-
-	// Auto Migrate the User model
-	db.AutoMigrate(&models.User{})
+type Handler struct {
+	DB *gorm.DB
 }
 
-func Register(c *gin.Context) {
+func NewHandler(db *gorm.DB) *Handler {
+	return &Handler{DB: db}
+}
+
+func (h *Handler) Register(c *gin.Context) {
 	var input struct {
 		Username string `json:"username"`
 		Email    string `json:"email"`
@@ -63,7 +41,7 @@ func Register(c *gin.Context) {
 		Email:    input.Email,
 		Password: string(hashedPassword),
 	}
-	result := db.Create(&user)
+	result := h.DB.Create(&user)
 	if result.Error != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to register user"})
 		return
@@ -72,7 +50,7 @@ func Register(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"user": user})
 }
 
-func Login(c *gin.Context) {
+func (h *Handler) Login(c *gin.Context) {
 	var input struct {
 		Email    string `json:"email"`
 		Password string `json:"password"`
@@ -84,7 +62,7 @@ func Login(c *gin.Context) {
 	}
 
 	var user models.User
-	if err := db.Where("email = ?", input.Email).First(&user).Error; err != nil {
+	if err := h.DB.Where("email = ?", input.Email).First(&user).Error; err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "メールアドレスが存在しません"})
 		return
 	}

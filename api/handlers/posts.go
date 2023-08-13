@@ -1,12 +1,13 @@
 package handlers
 
 import (
+	"fmt"
 	"github.com/eternaleight/go-backend/models"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
-func CreatePost(c *gin.Context) {
+func (h *Handler) CreatePost(c *gin.Context) {
 	var input struct {
 		Content string `json:"content"`
 	}
@@ -22,13 +23,25 @@ func CreatePost(c *gin.Context) {
 	}
 
 	// isAuthenticatedミドルウェアで設定されたuserIDを取得
-	userID, _ := c.Get("userID")
+	userIDValue, exists := c.Get("userID")
+	fmt.Println("UserID retrieved in handler:", userIDValue) // この行を追加
+	if !exists {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "ユーザーIDが見つかりません"})
+		return
+	}
+
+	// userIDの型確認
+	userID, ok := userIDValue.(int)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "ユーザーIDの型が正しくありません"})
+		return
+	}
 
 	post := models.Post{
 		Content:  input.Content,
-		AuthorID: userID.(int), // userIDの型変換
+		AuthorID: userID,
 	}
-	if err := db.Create(&post).Error; err != nil {
+	if err := h.DB.Create(&post).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "サーバーエラーです。"})
 		return
 	}
@@ -36,10 +49,10 @@ func CreatePost(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"post": post})
 }
 
-func GetLatestPosts(c *gin.Context) {
+func (h *Handler) GetLatestPosts(c *gin.Context) {
 	var posts []models.Post
 
-	if err := db.Order("created_at desc").Limit(10).Preload("Author").Find(&posts).Error; err != nil {
+	if err := h.DB.Order("created_at desc").Limit(10).Preload("Author").Find(&posts).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "サーバーエラーです。"})
 		return
 	}
