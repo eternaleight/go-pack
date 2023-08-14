@@ -41,7 +41,8 @@ func main() {
 	}
 
 	// Auto Migrate the User model
-	db.AutoMigrate(&models.User{}, &models.Post{}, &models.Profile{}) // Added Post and Profile models for migration as well
+	db.AutoMigrate(&models.User{}, &models.Post{}, &models.Profile{}, &models.Product{}, &models.Purchase{})
+	// Added Post and Profile models for migration as well
 
 	r := gin.Default()
 	r.RedirectTrailingSlash = false
@@ -67,6 +68,20 @@ func main() {
 	user := r.Group("/api/user").Use(middlewares.IsAuthenticated())
 	{
 		user.GET("/", handlersNewDB.GetUser)
+	}
+
+	products := r.Group("/api/products").Use(middlewares.IsAuthenticated())
+	{
+		products.POST("/", handlers.CreateProduct)
+		products.GET("/", handlers.ListProducts)
+		products.GET("/:id", handlers.GetProduct)
+		products.PUT("/:id", handlers.UpdateProduct)
+		products.DELETE("/:id", handlers.DeleteProduct)
+	}
+
+	purchase := r.Group("/api/purchase").Use(middlewares.IsAuthenticated())
+	{
+		purchase.POST("/", handlers.PurchaseProduct)
 	}
 
 	r.Run(":8001")

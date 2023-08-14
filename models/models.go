@@ -44,3 +44,33 @@ type Profile struct {
 func (Profile) TableName() string {
 	return "Profile"
 }
+
+// Product represents an item or content that can be sold on the platform.
+type Product struct {
+	ID          uint `gorm:"primarykey"`
+	Name        string
+	Description string
+	Price       float64
+	ImageURL    string
+	VideoURL    string
+	CreatedAt   time.Time
+	SellerID    uint
+	Seller      User
+}
+
+func (Product) TableName() string {
+	return "Product"
+}
+
+// Purchase represents a transaction where a user buys a product.
+type Purchase struct {
+	ID              uint `gorm:"primarykey"`
+	ProductID       uint
+	BuyerID         uint
+	PurchaseDate    time.Time
+	StripePaymentID string
+}
+
+func (Purchase) TableName() string {
+	return "Purchase"
+}
