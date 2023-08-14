@@ -1,12 +1,12 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 
 	"github.com/eternaleight/go-backend/models"
+	"github.com/eternaleight/go-backend/store"
 )
 
 func (h *Handler) CreatePost(c *gin.Context) {
@@ -26,7 +26,6 @@ func (h *Handler) CreatePost(c *gin.Context) {
 
 	// isAuthenticatedミドルウェアで設定されたuserIDを取得
 	userIDValue, exists := c.Get("userID")
-	fmt.Println("UserID retrieved in handler:", userIDValue) // この行を追加
 	if !exists {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "ユーザーIDが見つかりません"})
 		return
@@ -39,11 +38,12 @@ func (h *Handler) CreatePost(c *gin.Context) {
 		return
 	}
 
+	postStore := store.NewPostStore(h.DB)
 	post := models.Post{
 		Content:  input.Content,
 		AuthorID: userID,
 	}
-	if err := h.DB.Create(&post).Error; err != nil {
+	if err := postStore.CreatePost(&post); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "サーバーエラーです。"})
 		return
 	}
@@ -54,7 +54,9 @@ func (h *Handler) CreatePost(c *gin.Context) {
 func (h *Handler) GetLatestPosts(c *gin.Context) {
 	var posts []models.Post
 
-	if err := h.DB.Order("created_at desc").Limit(10).Preload("Author").Find(&posts).Error; err != nil {
+	postStore := store.NewPostStore(h.DB)
+	posts, err := postStore.GetLatestPosts()
+	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "サーバーエラーです。"})
 		return
 	}

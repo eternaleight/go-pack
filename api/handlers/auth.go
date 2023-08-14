@@ -6,10 +6,9 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
-	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 
-	"github.com/eternaleight/go-backend/models"
+	"github.com/eternaleight/go-backend/store"
 )
 
 type Handler struct {
@@ -32,20 +31,10 @@ func (h *Handler) Register(c *gin.Context) {
 		return
 	}
 
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(input.Password), 10)
+	authStore := store.NewAuthStore(h.DB)
+	user, err := authStore.RegisterUser(input.Username, input.Email, input.Password)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to hash password"})
-		return
-	}
-
-	user := models.User{
-		Username: input.Username,
-		Email:    input.Email,
-		Password: string(hashedPassword),
-	}
-	result := h.DB.Create(&user)
-	if result.Error != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to register user"})
 		return
 	}
 
@@ -63,13 +52,15 @@ func (h *Handler) Login(c *gin.Context) {
 		return
 	}
 
-	var user models.User
-	if err := h.DB.Where("email = ?", input.Email).First(&user).Error; err != nil {
+	authStore := store.NewAuthStore(h.DB)
+	user, err := authStore.GetUserByEmail(input.Email)
+	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "メールアドレスが存在しません"})
 		return
 	}
 
-	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(input.Password)); err != nil {
+	err = authStore.ComparePassword(user.Password, input.Password)
+	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "パスワードが間違っています"})
 		return
 	}
