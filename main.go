@@ -14,6 +14,7 @@ import (
 	"github.com/eternaleight/go-backend/api/handlers"
 	"github.com/eternaleight/go-backend/api/middlewares"
 	"github.com/eternaleight/go-backend/models"
+	"github.com/eternaleight/go-backend/store"
 )
 
 var db *gorm.DB
@@ -21,12 +22,12 @@ var db *gorm.DB
 func main() {
 	var err error
 
-	// Load .env file
+	// .envファイルを読み込む
 	if err := godotenv.Load(); err != nil {
 		log.Print("No .env file found")
 	}
 
-	// Read DATABASE_URL from Supabase
+	// SupabaseからDATABASE_URLを読み込む
 	dsn := fmt.Sprintf("host=%s port=%s user=postgres dbname=%s password=%s sslmode=disable",
 		os.Getenv("HOST"),
 		os.Getenv("PORT"),
@@ -34,23 +35,25 @@ func main() {
 		os.Getenv("PASSWORD"),
 	)
 
-	// Connect to the database using gorm
+	// gormを使ってデータベースに接続
 	db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		panic("Failed to connect to database")
 	}
 
-	// Auto Migrate the User model
+	// ユーザーモデルを自動マイグレーション
 	db.AutoMigrate(&models.User{}, &models.Post{}, &models.Profile{}, &models.Product{}, &models.Purchase{})
-	// Added Post and Profile models for migration as well
 
 	r := gin.Default()
+  // トレーリングスラッシュへのリダイレクトを無効にする
 	r.RedirectTrailingSlash = false
 	config := cors.DefaultConfig()
-	config.AllowAllOrigins = true
-	config.AllowHeaders = append(config.AllowHeaders, "Authorization") // 'Authorization' header allowed
 	r.Use(cors.New(config))
+	config.AllowAllOrigins = true
+	// 'Authorization'ヘッダーを許可するためにヘッダーを追加
+	config.AllowHeaders = append(config.AllowHeaders, "Authorization")
 
+	// 新しいハンドラのインスタンスを作成し、データベースを渡す
 	handlersNewDB := handlers.NewHandler(db)
 
 	auth := r.Group("/api/auth")
@@ -70,18 +73,26 @@ func main() {
 		user.GET("/", handlersNewDB.GetUser)
 	}
 
+	// ストアのインスタンスを作成
+	productStore := store.NewProductStore(db)
+	purchaseStore := store.NewPurchaseStore(db)
+
+	// ハンドラのインスタンスを作成
+	productHandler := handlers.NewProductHandler(productStore)
+	purchaseHandler := handlers.NewPurchaseHandler(purchaseStore)
+
 	products := r.Group("/api/products").Use(middlewares.IsAuthenticated())
 	{
-		products.POST("/", handlers.CreateProduct)
-		products.GET("/", handlers.ListProducts)
-		products.GET("/:id", handlers.GetProduct)
-		products.PUT("/:id", handlers.UpdateProduct)
-		products.DELETE("/:id", handlers.DeleteProduct)
+		products.POST("/", productHandler.CreateProduct)
+		products.GET("/", productHandler.ListProducts)
+		products.GET("/:id", productHandler.GetProductByID)
+		products.PUT("/:id", productHandler.UpdateProduct)
+		products.DELETE("/:id", productHandler.DeleteProduct)
 	}
 
 	purchase := r.Group("/api/purchase").Use(middlewares.IsAuthenticated())
 	{
-		purchase.POST("/", handlers.PurchaseProduct)
+		purchase.POST("/", purchaseHandler.CreatePurchase)
 	}
 
 	r.Run(":8001")

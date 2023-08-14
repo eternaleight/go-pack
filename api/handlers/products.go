@@ -1,48 +1,106 @@
 package handlers
 
 import (
-	"github.com/eternaleight/go-backend/models"
-	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
+
+	"github.com/gin-gonic/gin"
+
+	"github.com/eternaleight/go-backend/models"
+	"github.com/eternaleight/go-backend/store"
 )
 
-// CreateProduct は新しい商品を作成
-func CreateProduct(c *gin.Context) {
+// 商品に関するリクエストを処理
+type ProductHandler struct {
+	store *store.ProductStore
+}
+
+// 新しいProductHandlerを初期化して返す
+func NewProductHandler(s *store.ProductStore) *ProductHandler {
+	return &ProductHandler{store: s}
+}
+
+// 新しい商品を作成
+func (ph *ProductHandler) CreateProduct(c *gin.Context) {
 	var product models.Product
 	if err := c.ShouldBindJSON(&product); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "商品のデータの形式が正しくありません。"})
 		return
 	}
-	// TODO: データベースに商品を保存
+
+	err := ph.store.CreateProduct(&product)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "データベースに商品を保存できませんでした。"})
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{"data": product})
 }
 
-// ListProducts は利用可能な商品をリストアップ
-func ListProducts(c *gin.Context) {
-	var products []models.Product
-	// TODO: データベースから商品を取得
+// 全商品をリストとして取得
+func (ph *ProductHandler) ListProducts(c *gin.Context) {
+	products, err := ph.store.ListProducts()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "商品のリストの取得に失敗しました。"})
+		return
+	}
 	c.JSON(http.StatusOK, gin.H{"data": products})
 }
 
-// GetProduct はIDに基づいて商品の詳細を取得
-func GetProduct(c *gin.Context) {
-	var product models.Product
-	// id := c.Param("id") // 現段階では未使用のためコメントアウト
-	// TODO: データベースから指定されたIDの商品を取得
+// 指定されたIDの商品を取得
+func (ph *ProductHandler) GetProductByID(c *gin.Context) {
+	idStr := c.Param("id")
+	id, err := strconv.ParseUint(idStr, 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "商品IDが無効です。"})
+		return
+	}
+
+	product, err := ph.store.GetProductByID(uint(id))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "商品の情報を取得できませんでした。"})
+		return
+	}
 	c.JSON(http.StatusOK, gin.H{"data": product})
 }
 
-// UpdateProduct は既存の商品の詳細を更新
-func UpdateProduct(c *gin.Context) {
+// 指定されたIDの商品情報を更新
+func (ph *ProductHandler) UpdateProduct(c *gin.Context) {
+	idStr := c.Param("id")
+	id, err := strconv.ParseUint(idStr, 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "商品IDが無効です。"})
+		return
+	}
+
 	var product models.Product
-	// id := c.Param("id") // 現段階では未使用のためコメントアウト
-	// TODO: データベースで指定されたIDの商品を更新
+	if err := c.ShouldBindJSON(&product); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "商品のデータの形式が正しくありません。"})
+		return
+	}
+
+	err = ph.store.UpdateProduct(uint(id), &product)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "商品の更新に失敗しました。"})
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{"data": product})
 }
 
-// DeleteProduct はIDに基づいて商品を削除
-func DeleteProduct(c *gin.Context) {
-	// id := c.Param("id") // 現段階では未使用のためコメントアウト
-	// TODO: データベースから指定されたIDの商品を削除
-	c.JSON(http.StatusOK, gin.H{"data": "商品は正常に削除されました"})
+// 指定されたIDの商品を削除
+func (ph *ProductHandler) DeleteProduct(c *gin.Context) {
+	idStr := c.Param("id")
+	id, err := strconv.ParseUint(idStr, 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "商品IDが無効です。"})
+		return
+	}
+
+	err = ph.store.DeleteProduct(uint(id))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "商品の削除に失敗しました。"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "商品は正常に削除されました。"})
 }
