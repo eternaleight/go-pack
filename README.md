@@ -1,14 +1,20 @@
 # Go-platform
 
-![CleanShot 2023-08-14 at 12 21 35@2x](https://github.com/eternaleight/go-platform/assets/96198088/56572fe9-715e-4f9b-9a3e-128bfcc0ffb9)
+![CleanShot 2023-08-15 at 04 16 56@2x](https://github.com/eternaleight/go-platform/assets/96198088/ab862886-94d2-49f6-8b6d-6e15055064fd)
+
 ### User
 ![User 1degree](https://github.com/eternaleight/go-platform/assets/96198088/2d400696-741b-47b4-b4cd-9587d6d53f81)
 ### Post
 ![Post 1degree](https://github.com/eternaleight/go-platform/assets/96198088/aa0ce912-e8cb-4e3b-ad28-1f73cc71981a)
 ### Profile
 ![Profile 1degree](https://github.com/eternaleight/go-platform/assets/96198088/f02fd20f-f270-4a44-9e28-6b3e2182c83e)
+### Product
+![Product 1degree](https://github.com/eternaleight/go-platform/assets/96198088/c3fd9ebe-b4d2-4661-9331-138589e54d80)
+### Purchase
+![Purchase 2degrees](https://github.com/eternaleight/go-platform/assets/96198088/53c8c042-97f9-47d8-af46-33ff108e18a6)
 ### Relationships
-![relationships real large](https://github.com/eternaleight/go-platform/assets/96198088/947c9dd0-3b12-4d80-a0a7-3efa642c3b9d)
+![relationships real compact](https://github.com/eternaleight/go-platform/assets/96198088/cd6e48f3-764e-4a8c-b9d7-144c13ab6962)
+
 
 ## Project structure
 ```

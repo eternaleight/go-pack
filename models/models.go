@@ -3,7 +3,7 @@ package models
 import "time"
 
 type Post struct {
-	ID        int `gorm:"primaryKey"`
+	ID        int       `gorm:"primaryKey"`
 	Content   string
 	CreatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP"`
 	AuthorID  int       `gorm:"column:authorId"`
@@ -16,7 +16,7 @@ func (Post) TableName() string {
 }
 
 type User struct {
-	ID       int `gorm:"primaryKey"`
+	ID       int    `gorm:"primaryKey"`
 	Username string
 	Email    string `gorm:"uniqueIndex"`
 	Password string
@@ -41,15 +41,16 @@ func (Profile) TableName() string {
 }
 
 type Product struct {
-	ID          uint      `gorm:"primarykey;column:id"`
-	Name        string    `gorm:"column:name"`
-	Description string    `gorm:"column:description"`
-	Price       float64   `gorm:"column:price"`
-	ImageURL    string    `gorm:"column:imageURL"`
-	VideoURL    string    `gorm:"column:videoURL"`
-	CreatedAt   time.Time `gorm:"column:createdAt"`
-	SellerID    uint      `gorm:"column:sellerID;foreignKey:ID"`
-	Seller      User
+	ID          uint       `gorm:"primarykey;column:id"`
+	Name        string     `gorm:"column:name"`
+	Description string     `gorm:"column:description"`
+	Price       float64    `gorm:"column:price"`
+	ImageURL    string     `gorm:"column:imageUrl"`
+	VideoURL    string     `gorm:"column:videoUrl"`
+	CreatedAt   time.Time  `gorm:"column:createdAt"`
+	SellerID    uint       `gorm:"column:sellerId"`
+	Seller      User       `gorm:"foreignKey:SellerID;references:ID"`
+	Purchases   []Purchase `gorm:"foreignKey:ProductID"`
 }
 
 func (Product) TableName() string {
@@ -58,10 +59,10 @@ func (Product) TableName() string {
 
 type Purchase struct {
 	ID              uint      `gorm:"primarykey;column:id"`
-	ProductID       uint      `gorm:"column:productID"`
-	BuyerID         uint      `gorm:"column:buyerID"`
+	ProductID       uint      `gorm:"column:productId"`
+	BuyerID         uint      `gorm:"column:buyerId"`
 	PurchaseDate    time.Time `gorm:"column:purchaseDate"`
-	StripePaymentID string    `gorm:"column:stripePaymentID"`
+	StripePaymentID string    `gorm:"column:stripePaymentId"`
 }
 
 func (Purchase) TableName() string {

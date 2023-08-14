@@ -48,8 +48,8 @@ func main() {
   // トレーリングスラッシュへのリダイレクトを無効にする
 	r.RedirectTrailingSlash = false
 	config := cors.DefaultConfig()
-	r.Use(cors.New(config))
 	config.AllowAllOrigins = true
+	r.Use(cors.New(config))
 	// 'Authorization'ヘッダーを許可するためにヘッダーを追加
 	config.AllowHeaders = append(config.AllowHeaders, "Authorization")
 
