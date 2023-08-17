@@ -27,7 +27,6 @@ func main() {
 		log.Print("No .env file found")
 	}
 
-	// SupabaseからDATABASE_URLを読み込む
 	dsn := fmt.Sprintf("host=%s port=%s user=postgres dbname=%s password=%s sslmode=disable",
 		os.Getenv("HOST"),
 		os.Getenv("PORT"),
@@ -45,7 +44,7 @@ func main() {
 	db.AutoMigrate(&models.User{}, &models.Post{}, &models.Profile{}, &models.Product{}, &models.Purchase{})
 
 	r := gin.Default()
-  // トレーリングスラッシュへのリダイレクトを無効にする
+	// トレーリングスラッシュへのリダイレクトを無効にする
 	r.RedirectTrailingSlash = false
 	config := cors.DefaultConfig()
 	config.AllowAllOrigins = true
