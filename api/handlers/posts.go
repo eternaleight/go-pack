@@ -35,7 +35,7 @@ func (h *Handler) CreatePost(c *gin.Context) {
 	}
 
 	// userIDの型確認
-	userID, ok := userIDValue.(int)
+	userID, ok := userIDValue.(uint)
 	if !ok {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "ユーザーIDの型が正しくありません"})
 		return

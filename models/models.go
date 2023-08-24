@@ -3,11 +3,10 @@ package models
 import "time"
 
 type Post struct {
-	ID        int       `gorm:"primaryKey"`
+	ID        uint `gorm:"primaryKey"`
 	Content   string
 	CreatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP"`
-	AuthorID  int       `gorm:"column:authorId"`
-	Author    User
+	AuthorID  uint      `gorm:"column:authorId"`
 }
 
 // TableName overrides the table name
@@ -16,7 +15,7 @@ func (Post) TableName() string {
 }
 
 type User struct {
-	ID       int    `gorm:"primaryKey"`
+	ID       uint `gorm:"primaryKey"`
 	Username string
 	Email    string `gorm:"uniqueIndex"`
 	Password string
@@ -29,11 +28,10 @@ func (User) TableName() string {
 }
 
 type Profile struct {
-	ID              int    `gorm:"primaryKey"`
+	ID              uint   `gorm:"primaryKey"`
 	Bio             string `gorm:"size:1000"`
 	ProfileImageUrl string `gorm:"column:profileImageUrl"`
-	UserID          int    `gorm:"column:userId"`
-	User            *User  `gorm:"foreignKey:UserID"`
+	UserID          uint   `gorm:"column:userId"`
 }
 
 func (Profile) TableName() string {
@@ -44,7 +42,7 @@ type Product struct {
 	ID          uint       `gorm:"primarykey;column:id"`
 	Name        string     `gorm:"column:name"`
 	Description string     `gorm:"column:description"`
-	Price       float64    `gorm:"column:price"`
+	Price       int        `gorm:"column:price"`
 	ImageURL    string     `gorm:"column:imageUrl"`
 	VideoURL    string     `gorm:"column:videoUrl"`
 	CreatedAt   time.Time  `gorm:"column:createdAt"`

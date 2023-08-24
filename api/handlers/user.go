@@ -12,7 +12,7 @@ import (
 // ユーザー情報を取得
 func (h *Handler) GetUser(c *gin.Context) {
 	// ミドルウェアからuserIDを取得
-	userID := c.MustGet("userID").(int)
+	userID := c.MustGet("userID").(uint)
 
 	// UserStoreのインスタンスを生成
 	userStore := store.NewUserStore(h.DB)

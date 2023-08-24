@@ -20,7 +20,7 @@ func (s *UserStore) CreateUser(user *models.User) error {
 }
 
 // IDに基づいてユーザー情報を取得
-func (s *UserStore) GetUserByID(id int) (*models.User, error) {
+func (s *UserStore) GetUserByID(id uint) (*models.User, error) {
 	var user models.User
 	if err := s.DB.Where("id = ?", id).First(&user).Error; err != nil {
 		return nil, err

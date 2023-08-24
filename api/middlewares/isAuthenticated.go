@@ -41,7 +41,7 @@ func IsAuthenticated() gin.HandlerFunc {
 
 		if claims, ok := token.Claims.(jwt.MapClaims); ok {
 			if idFloat, ok := claims["id"].(float64); ok {
-				userId := int(idFloat)
+				userId := uint(idFloat)
 				c.Set("userID", userId)
 				fmt.Println("UserID set in middleware:", userId) // この行を追加
 				c.Next()
