@@ -3,25 +3,26 @@ package models
 import "time"
 
 type Post struct {
-	ID        uint `gorm:"primaryKey"`
-	Content   string
-	CreatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP;column:createdAt"`
-	AuthorID  uint      `gorm:"column:authorId;index"`
+	ID        uint      `gorm:"primaryKey" json:"id"`
+	Content   string    `gorm:"column:content" json:"content"`
+	CreatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP;column:createdAt" json:"createdAt"`
+	AuthorID  uint      `gorm:"column:authorId;index" json:"authorId"`
 }
 
-// TableName overrides the table name
 func (Post) TableName() string {
 	return "Post"
 }
 
 type User struct {
-	ID           uint `gorm:"primaryKey"`
-	Username     string
-	Email        string `gorm:"unique;index"`
-	EmailMd5Hash string `gorm:"column:emailMd5Hash;unique;index"`
-	Password     string
-	Posts        []Post  `gorm:"foreignKey:AuthorID"`
-	Profile      Profile `gorm:"foreignKey:UserID"`
+	ID           uint      `gorm:"primaryKey" json:"id"`
+	Username     string    `gorm:"column:username" json:"username"`
+	Email        string    `gorm:"unique;index;column:email" json:"email"`
+	EmailMd5Hash string    `gorm:"column:emailMd5Hash;unique;index" json:"emailMd5Hash"`
+	Password     string    `gorm:"column:password" json:"password"`
+	Posts        []Post    `gorm:"foreignKey:AuthorID" json:"posts"`
+	Profile      Profile   `gorm:"foreignKey:UserID" json:"profile"`
+	Products     []Product `gorm:"foreignKey:SellerID" json:"products"`
+	Purchases    []Purchase `gorm:"foreignKey:BuyerID" json:"purchases"`
 }
 
 func (User) TableName() string {
@@ -29,10 +30,10 @@ func (User) TableName() string {
 }
 
 type Profile struct {
-	ID              uint   `gorm:"primaryKey"`
-	Bio             string `gorm:"size:1000"`
-	ProfileImageUrl string `gorm:"column:profileImageUrl"`
-	UserID          uint   `gorm:"column:userId;index;unique"`
+	ID              uint   `gorm:"primaryKey" json:"id"`
+	Bio             string `gorm:"size:1000;column:bio" json:"bio"`
+	ProfileImageUrl string `gorm:"column:profileImageUrl" json:"profileImageUrl"`
+	UserID          uint   `gorm:"column:userId;index;unique" json:"userId"`
 }
 
 func (Profile) TableName() string {
@@ -40,16 +41,16 @@ func (Profile) TableName() string {
 }
 
 type Product struct {
-	ID          uint       `gorm:"primarykey;column:id"`
-	Name        string     `gorm:"column:name"`
-	Description string     `gorm:"column:description"`
-	Price       int        `gorm:"column:price"`
-	ImageURL    string     `gorm:"column:imageUrl"`
-	VideoURL    string     `gorm:"column:videoUrl"`
-	CreatedAt   time.Time  `gorm:"column:createdAt"`
-	SellerID    uint       `gorm:"column:sellerId;index"`
-	Seller      User       `gorm:"foreignKey:SellerID;references:ID"`
-	Purchases   []Purchase `gorm:"foreignKey:ProductID"`
+	ID          uint       `gorm:"primaryKey;column:id" json:"id"`
+	Name        string     `gorm:"column:name" json:"name"`
+	Description string     `gorm:"column:description" json:"description"`
+	Price       int        `gorm:"column:price" json:"price"`
+	ImageURL    string     `gorm:"column:imageUrl" json:"imageUrl"`
+	ImageSize   uint64     `gorm:"column:imageSize" json:"imageSize"`
+	VideoURL    string     `gorm:"column:videoUrl" json:"videoUrl"`
+	CreatedAt   time.Time  `gorm:"column:createdAt" json:"createdAt"`
+	SellerID    uint       `gorm:"column:sellerId;index" json:"sellerId"`
+	Purchases   []Purchase `gorm:"foreignKey:ProductID" json:"purchases"`
 }
 
 func (Product) TableName() string {
@@ -57,14 +58,24 @@ func (Product) TableName() string {
 }
 
 type Purchase struct {
-	ID              uint      `gorm:"primaryKey;column:id"`
-	Price           int       `gorm:"primaryKey;column:price"`
-	ProductID       uint      `gorm:"column:productId;index"`
-	BuyerID         uint      `gorm:"column:buyerId;index"`
-	PurchaseDate    time.Time `gorm:"column:purchaseDate"`
-	StripePaymentID string    `gorm:"column:stripePaymentId"`
+	ID              uint      `gorm:"primaryKey;column:id" json:"id"`
+	Price           int       `gorm:"column:price" json:"price"`
+	ProductID       uint      `gorm:"column:productId;index" json:"productId"`
+	BuyerID         uint      `gorm:"column:buyerId;index" json:"buyerId"`
+	PurchaseDate    time.Time `gorm:"column:purchaseDate" json:"purchaseDate"`
+	StripePaymentID string    `gorm:"column:stripePaymentId" json:"stripePaymentId"`
 }
 
 func (Purchase) TableName() string {
 	return "Purchase"
+}
+
+type Image struct {
+	ID        uint      `gorm:"primaryKey;column:id" json:"id"`
+	URL       string    `gorm:"column:url" json:"url"`
+	CreatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP;column:createdAt" json:"createdAt"`
+}
+
+func (Image) TableName() string {
+	return "Image"
 }
