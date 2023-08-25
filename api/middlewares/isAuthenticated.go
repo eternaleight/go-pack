@@ -4,16 +4,14 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"strings"
-
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 )
 
 func IsAuthenticated() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		const bearerSchema = "Bearer "
-		authHeader := c.GetHeader("Authorization")
+		// クッキーからauthTokenを取得
+		tokenString, err := c.Cookie("authToken")
 
 		// エラーメッセージをまとめる関数
 		unauthorized := func() {
@@ -21,12 +19,11 @@ func IsAuthenticated() gin.HandlerFunc {
 			c.Abort()
 		}
 
-		if authHeader == "" {
+		if err != nil {
 			unauthorized()
 			return
 		}
 
-		tokenString := strings.TrimPrefix(authHeader, bearerSchema)
 		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
@@ -43,7 +40,7 @@ func IsAuthenticated() gin.HandlerFunc {
 			if idFloat, ok := claims["id"].(float64); ok {
 				userId := uint(idFloat)
 				c.Set("userID", userId)
-				fmt.Println("UserID set in middleware:", userId) // この行を追加
+				fmt.Println("UserID set in middleware:", userId)
 				c.Next()
 				return
 			}

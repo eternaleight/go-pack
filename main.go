@@ -47,8 +47,15 @@ func main() {
 	// トレーリングスラッシュへのリダイレクトを無効にする
 	r.RedirectTrailingSlash = false
 	config := cors.DefaultConfig()
-	config.AllowAllOrigins = true
+	config.AllowCredentials = true
+
+	allowedOrigins := os.Getenv("ALLOWED_ORIGINS") // 環境変数から読み取る
+	if allowedOrigins == "" {
+		allowedOrigins = "http://localhost:3000" // デフォルト値
+	}
+	config.AllowOrigins = []string{allowedOrigins} // フロントエンドのオリジンに合わせて変更
 	r.Use(cors.New(config))
+
 	// 'Authorization'ヘッダーを許可するためにヘッダーを追加
 	config.AllowHeaders = append(config.AllowHeaders, "Authorization")
 

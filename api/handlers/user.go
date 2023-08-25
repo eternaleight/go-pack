@@ -8,7 +8,6 @@ import (
 	"github.com/eternaleight/go-backend/store"
 )
 
-
 // ユーザー情報を取得
 func (h *Handler) GetUser(c *gin.Context) {
 	// ミドルウェアからuserIDを取得

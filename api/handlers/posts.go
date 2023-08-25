@@ -55,6 +55,7 @@ func (h *Handler) CreatePost(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, gin.H{"post": post})
 }
+
 // 最新の投稿を取得
 func (h *Handler) GetLatestPosts(c *gin.Context) {
 	var posts []models.Post
