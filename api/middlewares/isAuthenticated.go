@@ -2,10 +2,10 @@ package middlewares
 
 import (
 	"fmt"
-	"net/http"
-	"os"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
+	"net/http"
+	"os"
 )
 
 func IsAuthenticated() gin.HandlerFunc {

@@ -15,12 +15,18 @@ import (
 
 // DBのインスタンスを持つ構造体
 type Handler struct {
-	DB *gorm.DB
+	DB            *gorm.DB
+	ProductStore  *store.ProductStore
+	PurchaseStore *store.PurchaseStore
 }
 
 // 新しいHandlerのインスタンスを初期化
 func NewHandler(db *gorm.DB) *Handler {
-	return &Handler{DB: db}
+	return &Handler{
+		DB:            db,
+		ProductStore:  store.NewProductStore(db),
+		PurchaseStore: store.NewPurchaseStore(db),
+	}
 }
 
 func getGravatarURL(email string, size int) string {
